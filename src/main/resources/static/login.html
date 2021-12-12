@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets/images/favicon-32x32.png" type="image/png"/>
+    <!-- Bootstrap CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="assets/css/bootstrap-extended.css" rel="stylesheet"/>
+    <link href="assets/css/style.css" rel="stylesheet"/>
+    <link href="assets/css/icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+    <!-- loader-->
+    <link href="assets/css/pace.min.css" rel="stylesheet"/>
+
+    <title>用户登录</title>
+</head>
+
+<body>
+
+<!--start wrapper-->
+<div class="wrapper">
+
+    <!--start content-->
+    <main class="authentication-content">
+        <div class="container-fluid">
+            <div class="authentication-card">
+                <div class="card shadow rounded-0 overflow-hidden">
+                    <div class="row g-0">
+
+                        <div class="col-lg-6 bg-login d-flex align-items-center justify-content-center">
+                            <img src="assets/images/error/login-img.jpg" class="img-fluid" alt="">
+                        </div>
+
+                        <div class="col-lg-6">
+
+                            <div class="card-body p-4 p-sm-5">
+                                <h5 class="card-title">登录</h5>
+                                <p class="card-text mb-5">欢迎使用基于NLP的自动出题系统</p>
+
+                                <form class="form-body">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label for="inputUname" class="form-label">用户名</label>
+                                            <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3">
+                                                    <i class="bi bi-person-circle"></i>
+                                                </div>
+                                                <input type="text" class="form-control radius-30 ps-5"
+                                                       id="inputUname" name="uname"
+                                                       required placeholder="用户名">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="inputPassword" class="form-label">密码</label>
+                                            <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </div>
+                                                <input type="password" class="form-control radius-30 ps-5"
+                                                       id="inputPassword" required
+                                                       name="password" placeholder="密码">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6"></div>
+
+                                        <div class="col-12">
+                                            <div class="d-grid">
+                                                <input type="button" class="btn btn-primary radius-30" value="登录"
+                                                       id="login_input">
+                                                <button id="login_btn" class="d-none"></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <p class="mb-0">没有账号？<a href="register.html">立即注册</a></p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--            登录错误提示modal-->
+        <div class="modal fade" id="login_msg_modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">登陆失败</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        用户名或密码错误，请重新登录。
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary d-none" data-bs-toggle="modal" id="login_msg_modal_btn"
+                data-bs-target="#login_msg_modal"></button>
+
+    </main>
+
+    <!--end page main-->
+
+</div>
+<!--end wrapper-->
+
+
+<!-- Bootstrap bundle JS -->
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+
+<!--plugins-->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.cookie.min.js"></script>
+<script src="assets/js/pace.min.js"></script>
+
+<script>
+    $("#login_input").click(
+        function ()
+        {
+            let uname = $("#inputUname").val();
+            let password = $("#inputPassword").val();
+
+            let login_btn = $("#login_btn");
+
+            if (uname === "" || password === "")
+            {
+                login_btn.click();
+            }
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "/user/login", false);
+            xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded");
+            xhr.send("uname=" + uname + "&password=" + password);
+
+            let json = JSON.parse(xhr.responseText)
+            let state = json.state;
+
+            //登录成功
+            if (state)
+            {
+                let token = json.token;
+                $.cookie('token', token);
+
+                window.location.href = "index.html";
+            }
+
+            //登陆失败
+            else
+            {
+                $("#login_msg_modal_btn").click();
+            }
+        }
+    )
+</script>
+
+
+</body>
+
+</html>

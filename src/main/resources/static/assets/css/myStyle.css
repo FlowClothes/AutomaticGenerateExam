@@ -1,0 +1,19 @@
+/* 我自己额外添加的css */
+
+textarea {
+    resize: none;
+}
+
+
+/* 上传文本设置最小宽度 */
+
+.fl_textarea {
+    min-height: 8rem;
+}
+
+
+/* 上传文件modal设置每个元素之间的最小间距 */
+
+.fl_modal_ele {
+    margin-top: 1rem!important;
+}

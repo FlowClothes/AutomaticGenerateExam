@@ -1,0 +1,58 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.ArticleDao">
+    <insert id="articleInsert" parameterType="com.example.bean.Article">
+        insert into article values (#{article_id},#{articleName},#{uploader},#{uploadTime},#{articleType},#{articleSize},#{articleAddress},#{articleState})
+    </insert>
+
+    <select id="articleList" resultType="com.example.bean.Article">
+        select article_id,articleName,uploader,uploadTime,articleType,articleSize,articleState from article
+    </select>
+
+    <select id="selectAddressById" parameterType="integer" resultType="string">
+        select address from article where article_id = #{id}
+    </select>
+
+    <delete id="articleDeleteById" parameterType="integer">
+        delete from article where article_id = #{id}
+    </delete>
+
+    <select id="selectContent" parameterType="string" resultType="com.example.bean.Content">
+        select * from noun where content=#{content}
+    </select>
+
+    <insert id="contentInsert" parameterType="string">
+        insert into noun(nounid,content) values (#{nounid},#{content})
+    </insert>
+
+    <select id="selectPred" parameterType="string" resultType="com.example.bean.Predicate">
+        select * from predicate where content=#{content}
+    </select>
+
+    <insert id="PredInsert" parameterType="string">
+        insert into predicate values (#{predicateid},#{content})
+    </insert>
+
+    <insert id="relationInsert" parameterType="com.example.bean.Relation">
+        insert into relation values (#{relationid},#{subjectid},#{predicateid},#{objectid},#{objectid2},#{objectid3},#{objectid4},#{objectid5},#{date},#{adverbial})
+    </insert>
+
+    <select id="selectRelationByArticleId" parameterType="integer" resultType="com.example.bean.Relation">
+        select * from relation where adverbial=#{id}
+    </select>
+
+    <select id="selectNounContentById" parameterType="string" resultType="string">
+        select content from noun where nounid=#{id}
+    </select>
+
+    <select id="selectPredicateContentById" parameterType="string" resultType="string">
+        select content from predicate where predicateid=#{id}
+    </select>
+
+    <select id="selectAllContent" resultType="com.example.bean.Content">
+        select * from noun
+    </select>
+
+    <update id="updateArticleState" parameterType="com.example.bean.Article">
+        update article set articleState=#{articleState} where article_id=#{article_id}
+    </update>
+</mapper>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets/images/favicon-32x32.png" type="image/png"/>
+    <!--plugins-->
+    <link href="assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
+    <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
+    <link href="assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet"/>
+    <!-- Bootstrap CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="assets/css/bootstrap-extended.css" rel="stylesheet"/>
+    <link href="assets/css/style.css" rel="stylesheet"/>
+    <link href="assets/css/icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <!-- loader-->
+    <link href="assets/css/pace.min.css" rel="stylesheet"/>
+
+    <!--Theme Styles-->
+    <link href="assets/css/dark-theme.css" rel="stylesheet"/>
+    <link href="assets/css/light-theme.css" rel="stylesheet"/>
+    <link href="assets/css/semi-dark.css" rel="stylesheet"/>
+    <link href="assets/css/header-colors.css" rel="stylesheet"/>
+
+    <title>基于NLP的自动出题系统</title>
+
+    <style>
+        #article_table {
+            width: 100% !important;
+        }
+
+        .dt-body-center {
+            text-align: center;
+        }
+
+        /*.table-responsive*/
+        /*{*/
+        /*    overflow-x: visible;*/
+        /*}*/
+    </style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">教师功能</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">文章管理</li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="ms-auto">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#uploadFileModal" onclick="upload_modal_trigger_btn_click()">上传文件（仅支持txt）
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <!--end breadcrumb-->
+    <h6 class="mb-0 text-uppercase">文章信息</h6>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="article_table" class="table hover row-border order-column">
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!--end wrapper-->
+
+<!-- 上传文件的modal -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上传文件（仅支持txt）</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <!-- <form enctype="multipart/form-data" action="" method="post"> -->
+                    <input class="form-control" type="file" id="upload_file_input" required name="file"
+                           onchange="upload_file_input_change()">
+                    <!-- </form> -->
+
+                </div>
+
+                <div class="alert alert-warning border-0 bg-warning alert-dismissible fade show fl_modal_ele">
+                    <div class="text-dark">文件上传过程中，请不要关闭或者刷新页面。</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="alert alert-warning border-0 bg-warning alert-dismissible fade show fl_modal_ele d-none"
+                     id="upload_alert">
+                    <div class="text-dark" id="upload_alert_content"></div>
+                </div>
+
+                <div class="progress" id="upload_progressbar">
+                    <div id="upload_progressbar_percentage" class="progress-bar" role="progressbar"
+                         style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="uploadFile()">确认上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示Modal -->
+<button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#alert_modal" id="alert_modal_btn"></button>
+<div class="modal fade" id="alert_modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alert_modal_title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="alert_modal_content">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 查看的modal -->
+<div class="modal fade" id="detail_modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detail_modal_title">文件标题</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detail_modal_content">
+                Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots
+                in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard
+                McClintock, a Latin professor at Hampden-Sydney College in
+                Virginia, looked up one of the more obscure Latin words, consectetur.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script src="assets/js/jquery.min.js"></script>-->
+<!--<script src="assets/js/jquery.cookie.min.js"></script>-->
+<!--<script src="assets/js/bootstrap.bundle.min.js"></script>-->
+<!--<script src="assets/js/app.js"></script>-->
+<script src="assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+<script src="assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    var table;
+    var VERSION = '智慧出题系统 V0.0.1';
+    $(document).ready(function ()
+    {
+        table = $('#article_table').DataTable({
+            className: 'hover',
+
+            ajax: function (data, callback, settings)
+            {
+                callback(
+                    getArticleInfoByAjax()
+                )
+            },
+            order: [[1, 'asc']],
+
+            columns:
+                [
+                    {'title': '文章编号', 'data': 'article_id'},
+                    {'title': '文章名', 'data': 'articleName'},
+                    {'title': "上传者", 'data': "uploader"},
+                    {'title': "上传时间", 'data': "uploadTime"},
+                    {'title': "文件大小", 'data': "articleSize"},
+                    {'title': "文件状态", 'data': "state"},
+                    {'title': "执行操作", 'data': "operation"}
+                ],
+            lengthChange: false,
+            filter: false,
+            language: {
+                // url: 'assets/plugins/datatable/i18n/zh.json'
+                "processing": "处理中...",
+                "lengthMenu": "显示 _MENU_ 项结果",
+                "zeroRecords": "没有匹配结果",
+                "info": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "infoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                "infoFiltered": "(由 _MAX_ 项结果过滤)",
+                "search": "搜索:",
+                "emptyTable": "表中数据为空",
+                "paginate": {
+                    "first": "首页",
+                    "previous": "上页",
+                    "next": "下页",
+                    "last": "末页"
+                },
+                "aria": {
+                    "sortAscending": ": 以升序排列此列",
+                    "sortDescending": ": 以降序排列此列"
+                },
+                "autoFill": {
+                    "cancel": "取消",
+                    "fill": "用 <i>%d<\/i> 填充所有单元格",
+                    "fillHorizontal": "水平填充单元格",
+                    "fillVertical": "垂直填充单元格"
+                },
+                "buttons": {
+                    "collection": "集合 <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><\/span>",
+                    "colvis": "列可见性",
+                    "colvisRestore": "恢复列可见性",
+                    "copy": "复制",
+                    "copyKeys": "按 ctrl 或者 u2318 + C 将表数据复制到剪贴板。<br \/><br \/>要取消，请单击此消息或按Escape键。",
+                    "copyTitle": "复制到剪贴板",
+                    "csv": "CSV",
+                    "excel": "Excel",
+                    "pdf": "PDF",
+                    "copySuccess": {
+                        "1": "已将 1 行复制到剪贴板",
+                        "_": "已将 %d 行复制到剪贴板"
+                    },
+                    "pageLength": {
+                        "-1": "显示所有行",
+                        "_": "显示 %d 行"
+                    },
+                    "print": "打印"
+                },
+                "searchBuilder": {
+                    "add": "添加搜索条件",
+                    "button": {
+                        "0": "搜索生成器",
+                        "_": "搜索生成器 (%d)"
+                    },
+                    "clearAll": "全部清除",
+                    "condition": "条件",
+                    "data": "数据",
+                    "deleteTitle": "删除过滤规则",
+                    "leftTitle": "Outdent 条件",
+                    "logicAnd": "And",
+                    "logicOr": "Or",
+                    "rightTitle": "Indent 条件",
+                    "title": {
+                        "0": "搜索生成器",
+                        "_": "搜索生成器 (%d)"
+                    },
+                    "value": "值",
+                    "conditions": {
+                        "date": {
+                            "after": "日期条件查询为after条件名称：大于",
+                            "before": "日期条件查询为before条件名称：小于",
+                            "between": "日期条件查询为between条件名称：介于2个日期之间",
+                            "empty": "日期条件查询为empty条件名称：日期为空",
+                            "equals": "日期条件查询为equals条件名称：等于",
+                            "notBetween": "日期条件查询为notBetween条件名称：不介于2个日期之间",
+                            "notEmpty": "日期条件查询为notEmpty条件名称：日期不为空"
+                        },
+                        "string": {
+                            "contains": "文本包含",
+                            "empty": "文本为空",
+                            "endsWith": "文本以某某结尾",
+                            "equals": "文本等于",
+                            "not": "文本不等于",
+                            "notEmpty": "文本不为空",
+                            "startsWith": "文本从某某开始"
+                        }
+                    }
+                },
+                "searchPanes": {
+                    "collapse": {
+                        "0": "搜索栏",
+                        "_": "搜索栏（%d）"
+                    },
+                    "title": "应用的过滤器 - %d",
+                    "clearMessage": "全部清除",
+                    "count": "计数",
+                    "countFiltered": "过滤计数",
+                    "emptyPanes": "没有搜索栏",
+                    "loadMessage": "正在加载搜索栏"
+                },
+                "select": {
+                    "cells": {
+                        // "1": "选择了1个单元格",
+                        // "_": "选择了%d个单元格"
+                        "1": "",
+                        "_": ""
+                    },
+                    "columns": {
+                        // "1": "选择了1列",
+                        // "_": "选择了%d列"
+                        "1": "",
+                        "_": ""
+                    },
+                    "rows": {
+                        // "1": "被选中一行的说明",
+                        // "_": "被选中多行的说明"
+                        "1": "选择了1行",
+                        "_": "选择了%d行"
+                    }
+                },
+                "decimal": "用于标记小数位的字符",
+                "loadingRecords": "数据加载中...",
+                "infoThousands": ",",
+                "thousands": ","
+            },
+        });
+    })
+
+    //以ajax方式获取文章信息
+    function getArticleInfoByAjax()
+    {
+        console.log("----------获取文章数据----------");
+        let articleJSON = {};
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function ()
+        {
+            if (xhr.status === 200 && xhr.readyState === 4)
+            {
+                console.log("----------获取文章数据成功----------");
+                let responseText = JSON.parse(xhr.responseText);
+                articleJSON['data'] = responseText;
+
+                articleJSON['data'].operation = '嘎嘎';
+                articleJSON['data'].state = '嘎嘎';
+
+            }
+            else
+            {
+
+            }
+        }
+        xhr.open("POST", "/article/list", false);
+        xhr.send(null);
+
+        return articleJSON;
+    }
+
+    //点击查看按钮，给modal传入文章内容
+    function showDetail(articleID)
+    {
+        //先通过文章ID获取文章内容
+
+        let title = 'articleJSON.title';
+        let content = 'article.content';
+
+        $("#detail_modal_title").html(title);
+        $("#detail_modal_content").html(content);
+    }
+
+    //上传文件
+    function uploadFile()
+    {
+        let fileObj = $("#upload_file_input")[0].files[0];
+
+        let fileType = (fileObj.name.substr(fileObj.name.lastIndexOf(".") + 1)).toLowerCase();
+        let fileSize = fileObj.size;
+
+        //文件后缀名不是txt
+        if (fileType != "txt")
+        {
+            $("#upload_alert_content").html("文件类型不是txt，请重新上传。")
+            $("#upload_alert").removeClass("d-none");
+            return;
+        }
+
+        //文件大小过大
+        if (fileSize > 10 * 1024 * 1024)
+        {
+            $("#upload_alert_content").html("txt过大，请重新上传。")
+            $("#upload_alert").removeClass("d-none");
+            return;
+        }
+
+        let FileController = "/article/upload";
+        // let FileController="upload_original.html"
+
+        let form = new FormData();
+        form.append("file", fileObj);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("post", FileController, true);
+        xhr.setRequestHeader("token", $.cookie("token"));
+        xhr.upload.addEventListener("progress", progressFunction, false);
+        xhr.send(form);
+
+        xhr.onload = function ()
+        {
+            let responseText = xhr.responseText;
+            responseText = JSON.parse(responseText);
+            let msg = responseText.msg;
+            $('#uploadFileModal').modal('hide');
+            $('#alert_modal_title').html('提示');
+            $('#alert_modal_content').html(msg);
+            $('#alert_modal_btn').click();
+        };
+    }
+
+    function progressFunction(evt)
+    {
+        let upload_progressbar_percentage = $("#upload_progressbar_percentage");
+
+        if (evt.lengthComputable)
+        {
+            let percentage = Math.round(evt.loaded / evt.total * 100) + "%";
+            upload_progressbar_percentage.prop("style", "width:" + percentage);
+            upload_progressbar_percentage.html(percentage);
+        }
+
+    }
+
+    /**
+     * 点击上传文件弹出modal的按钮的事件处理
+     **/
+    function upload_modal_trigger_btn_click()
+    {
+        $("#upload_file_input").val("");
+
+        let upload_progressbar_percentage = $("#upload_progressbar_percentage");
+        upload_progressbar_percentage.html("0%");
+        upload_progressbar_percentage.css("width", "0%");
+
+    }
+
+    function upload_file_input_change()
+    {
+        $("#upload_alert").addClass("d-none");
+    }
+
+    function gotoMainPage()
+    {
+        $("#content").load("main.html");
+    }
+
+</script>
+
+</body>
+
+</html>
